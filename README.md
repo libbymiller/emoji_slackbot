@@ -6,9 +6,9 @@
 
     npm install
 
-## Get an emoji list of keywords
+## Get an emoji list of keywords from https://github.com/muan/emojilib
 
-    curl -O https://raw.githubusercontent.com/notwaldorf/emoji-translate/master/bower_components/emojilib/emojis.json
+    curl -O https://raw.githubusercontent.com/muan/emojilib/master/emojis.json
 
 ## Create a sqlite database
 
