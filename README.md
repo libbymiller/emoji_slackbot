@@ -1,5 +1,7 @@
 # emoji_slackbot
 
+    git clone https://github.com/libbymiller/emoji_slackbot
+
 ## Install the libraries
 
     npm install
