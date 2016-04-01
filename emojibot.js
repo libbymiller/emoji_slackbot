@@ -52,7 +52,7 @@ function reply(original_message, params){
 
 
    var text = original_message.text;
-   text = text.replace(/[\.\,\/#!$%\^&\*;:{}=\-`~\(\)\?\"\'\“]/g,"").toLowerCase();
+   text = text.replace(/[\.\,\/#!$%\^&\*;:{}=\-`~\(\)\?\"\'\“]/g," ").toLowerCase();
    console.log("text is "+text);
    var arr = text.split(" ");
    var sum = 0,
