@@ -49,10 +49,9 @@ function connectDB(){
 
 function reply(original_message, params){
 
-
-
    var text = original_message.text;
    text = text.replace(/[\.\,\/#!$%\^&\*;:{}=\-`~\(\)\?\"\'\“]/g," ").toLowerCase();
+   text = text.replace(/[\n]/g," \n");
    console.log("text is "+text);
    var arr = text.split(" ");
    var sum = 0,
@@ -65,7 +64,8 @@ function reply(original_message, params){
     return sum < stop;
    }, function() {
       console.log("in promise");
-      var c = "SELECT val FROM syns where k = '"+arr[sum]+"' ";
+      var word = arr[sum];
+      var c = "SELECT val FROM syns where k = '"+word+"' ";
       console.log(c);
       sum++;
       return new Promise(function(resolve) {
@@ -79,7 +79,8 @@ function reply(original_message, params){
           message_arr.push(record[0]["val"]);
           resolve(record[0]["val"]);
         }else{
-          resolve("");
+          message_arr.push(word);          
+          resolve(word);
         }
        });
       });
