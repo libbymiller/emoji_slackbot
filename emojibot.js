@@ -3,6 +3,11 @@ var path = require('path');
 var fs = require('fs');
 var SQLite = require('sqlite3').verbose();
 var Promise = require('bluebird');
+var https = require('https');
+
+//if false then it will message instead
+var reactToStuff = true;
+
  
 // create a bot 
 var bot = new SlackBot({
@@ -48,7 +53,7 @@ function connectDB(){
 
 
 function reply(original_message, params){
-
+   console.log(original_message);
    var text = original_message.text;
    text = text.replace(/[\.\,\/#!$%\^&\*;:{}=\-`~\(\)\?\"\'\“]/g," ").toLowerCase();
    text = text.replace(/[\n]/g," \n");
@@ -56,7 +61,6 @@ function reply(original_message, params){
    var arr = text.split(" ");
    var sum = 0,
    stop = arr.length;
-   console.log("stop is "+stop);
    var message_arr = [];
 
    promiseWhile(function() {
@@ -73,28 +77,48 @@ function reply(original_message, params){
         if(err){
            console.log("err is "+err);
         }
-        console.log("record is ");
-        console.log(record);
+        //console.log("record is ");
+        //console.log(record);
         if(record && record[0] && record[0]["val"]){
           message_arr.push(record[0]["val"]);
           resolve(record[0]["val"]);
         }else{
-          message_arr.push(word);          
-          resolve(word);
+          if(reactToStuff){
+            resolve("");
+          }else{
+            message_arr.push(word);          
+            resolve(word);
+          }
         }
        });
       });
    }).then(function() {
       console.log("posting message to "+original_message.channel);
-      console.log(message_arr.join(" "));
       var channel = getChannelById(original_message.channel);
       console.log("channel "+channel);
-      bot.postMessageToChannel(channel, message_arr.join(" "), params);
+      if(reactToStuff){
+        postReactions(original_message.channel, original_message.ts, message_arr);
+      }else{
+        console.log(message_arr.join(" "));
+        bot.postMessageToChannel(channel, message_arr.join(" "), params);
+      }
    }, function(error) {
       console.error("Failed!", error);
    });
 
 }
+
+//reaction code
+function postReactions(channel, timestamp, emojis){
+   for(var i=0; i< emojis.length; i++){
+     var e = emojis[i].replace(/\:/g,"");
+     var url = "https://slack.com/api/reactions.add?token="+bot.token+"&name="+e+"&channel="+channel+"&timestamp="+timestamp;
+     https.get(url, function(res) {
+       //console.log(res);
+     });
+   }
+}
+
 
 ///promises stuff
 
