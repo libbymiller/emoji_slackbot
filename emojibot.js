@@ -31,7 +31,7 @@ bot.on('start', function() {
  */
 bot.on('message', function(message) {
     // all ingoing events https://api.slack.com/rtm 
-    console.log(message);
+    //console.log(message);
 
     var params = {
         icon_emoji: ':scream_cat:'
@@ -54,6 +54,9 @@ function connectDB(){
 
 function reply(original_message, params){
    console.log(original_message);
+
+   var stopwords = ["and","the"];
+
    var text = original_message.text;
    text = text.replace(/[\.\,\/#!$%\^&\*;:{}=\-`~\(\)\?\"\'\“]/g," ").toLowerCase();
    text = text.replace(/[\n]/g," \n");
@@ -67,35 +70,54 @@ function reply(original_message, params){
     // Condition for stopping
     return sum < stop;
    }, function() {
-      console.log("in promise");
       var word = arr[sum];
-      var c = "SELECT val FROM syns where k = '"+word+"' ";
-      console.log(c);
-      sum++;
-      return new Promise(function(resolve) {
-       db.all(c, function (err, record) {
-        if(err){
-           console.log("err is "+err);
-        }
-        //console.log("record is ");
-        //console.log(record);
-        if(record && record[0] && record[0]["val"]){
-          message_arr.push(record[0]["val"]);
-          resolve(record[0]["val"]);
-        }else{
-          if(reactToStuff){
-            resolve("");
+      if(word.length > 2 && stopwords.indexOf(word)==-1){
+       var c = "SELECT val FROM syns where k = '"+word+"' ";
+       console.log(c);
+       sum++;
+       return new Promise(function(resolve) {
+        db.all(c, function (err, record) {
+         if(err){
+            console.log("err is "+err);
+         }
+         console.log("record is ");
+         console.log(record);
+         if(record){
+           var arr = [];
+           for(var i=0; i<record.length; i++){
+             arr.push(record[i]["val"]);
+           }
+
+           var j = Math.floor(Math.random() * arr.length)
+          if(arr[j]){
+             message_arr.push(arr[j]);
+             console.log("adding",arr[j]);
+             resolve(arr[j]);
           }else{
-            message_arr.push(word);          
-            resolve(word);
+             resolve("");
           }
-        }
-       });
+         }else{
+           if(reactToStuff){
+             resolve("");
+           }else{
+             message_arr.push(word);          
+             resolve("");
+           }
+         }
+        });
       });
+     }else{
+       console.log("word is < 2 len",word);
+       sum++;
+       return new Promise(function(resolve) {
+         resolve("");
+       });
+     }
    }).then(function() {
       console.log("posting message to "+original_message.channel);
       var channel = getChannelById(original_message.channel);
-      console.log("channel "+channel);
+      console.log("channel",channel);
+      console.log("message_arr",message_arr);
       if(reactToStuff){
         postReactions(original_message.channel, original_message.ts, message_arr);
       }else{
@@ -111,11 +133,12 @@ function reply(original_message, params){
 //reaction code
 function postReactions(channel, timestamp, emojis){
    for(var i=0; i< emojis.length; i++){
-     var e = emojis[i].replace(/\:/g,"");
-     var url = "https://slack.com/api/reactions.add?token="+bot.token+"&name="+e+"&channel="+channel+"&timestamp="+timestamp;
-     https.get(url, function(res) {
-       //console.log(res);
-     });
+     if(emojis[i]){
+       var e = emojis[i].replace(/\:/g,"");
+       var url = "https://slack.com/api/reactions.add?token="+bot.token+"&name="+e+"&channel="+channel+"&timestamp="+timestamp;
+       https.get(url, function(res) {
+      });
+     }
    }
 }
 
@@ -161,4 +184,3 @@ function getChannelById(channelId) {
        }
     }
 };
-
