@@ -36,6 +36,6 @@ http://blog.victorquinn.com/javascript-promise-while-loop
 
 data from this brilliant project: https://github.com/notwaldorf/emoji-translate
 
-## p.s.
+## custom emojis
 
-It's not very good! (yet)
+This is great! https://gist.github.com/lmarkus/8722f56baf8c47045621 - and you don't need to download all your custom ones just to use the api.
