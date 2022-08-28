@@ -8,7 +8,7 @@
 
 ## Get an emoji list of keywords from https://github.com/muan/emojilib
 
-    curl -O https://raw.githubusercontent.com/muan/emojilib/master/emojis.json
+    curl -O https://raw.githubusercontent.com/muan/emojilib/main/dist/emoji-en-US.json
 
 ## Create a sqlite database
 
